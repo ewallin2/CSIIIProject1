@@ -1,3 +1,4 @@
+from student import Student
 students = []
 
 def main_menu():
