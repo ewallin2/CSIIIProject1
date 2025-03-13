@@ -36,6 +36,7 @@ def create_student(filename):
     data.append({"ID": student_id, "First Name": first_name, "Last Name": last_name, "Grade": grade, "Class": student_class, "Email": email})
     save_data(filename, data)
     print("Student added successfully.")
+    input("Enter anything to continue.")
 
 def read_student(filename):
     """Retrieve a student record by ID."""
@@ -46,6 +47,7 @@ def read_student(filename):
         print(student)
     else:
         print("Student not found.")
+    input("Enter anything to continue.")
 
 def update_student(filename):
     """Update an existing student record."""
@@ -65,6 +67,7 @@ def update_student(filename):
     student[field] = new_value
     save_data(filename, data)
     print("Student updated successfully.")
+    input("Enter anything to continue.")
 
 def delete_student(filename):
     """Delete a student record with confirmation."""
@@ -73,16 +76,19 @@ def delete_student(filename):
     student = next((s for s in data if s['ID'] == student_id), None)
     if not student:
         print("Student not found.")
+        input("Enter anything to continue.")
         return
     
     confirm = input(f"Are you sure you want to delete {student['First Name']} {student['Last Name']} (ID: {student_id})? (Y/N): ").strip().lower()
     if confirm != 'y':
         print("Deletion cancelled.")
+        input("Enter anything to continue.")
         return
     
     data = [s for s in data if s['ID'] != student_id]
     save_data(filename, data)
     print("Student deleted successfully.")
+    input("Enter anything to continue.")
 
 def binary_search(data, target, key):
     """Binary search to find a student by ID or name."""
@@ -126,6 +132,7 @@ def sort_students(filename):
     sorted_data = mergesort(data, attribute)
     save_data(filename, sorted_data)
     print("Students sorted successfully.")
+    input("Enter anything to continue.")
 
 def main():
     filename = "students.csv"
