@@ -1,7 +1,7 @@
 import csv
 import os
 
-def load_data(filename):
+def load_data(filename): #Both
     """Load student data from a CSV file and keep it sorted."""
     if not os.path.exists(filename):
         with open(filename, 'w', newline='') as file:
@@ -12,7 +12,7 @@ def load_data(filename):
         data = list(reader)
         return sorted(data, key=lambda x: x["ID"])  # Sort by ID once on load
 
-def save_data(filename, data):
+def save_data(filename, data): #Eric
     """Save student data to a CSV file."""
     with open(filename, 'w', newline='') as file:
         fieldnames = ["ID", "First Name", "Last Name", "Grade", "Class", "Email"]
@@ -20,7 +20,7 @@ def save_data(filename, data):
         writer.writeheader()
         writer.writerows(data)
 
-def create_student(filename):
+def create_student(filename): #Eric
     """Add a new student."""
     data = load_data(filename)
     student_id = input("Enter student ID: ")
@@ -38,18 +38,26 @@ def create_student(filename):
     print("Student added successfully.")
     input("Enter anything to continue.")
 
-def read_student(filename):
+def read_student(filename): #Emmett
     """Retrieve a student record by ID."""
-    data = load_data(filename)
-    student_id = input("Enter student ID to read: ")
-    student = next((s for s in data if s['ID'] == student_id), None)
-    if student:
-        print(student)
+    students = load_data(filename)
+    attribute = input("Read an attribute in [ID, First Name, Last Name, Grade, Class, Email] or [A]ll attributes?")
+    prompt = input("Read data for [1] student or [A]ll students?")
+    if prompt.lower() == "a":
+        for s in students:
+            if attribute not in ["ID", "First Name", "Last Name", "Grade", "Class", "Email"]:
+                print(s)
+            else:
+                print(s[attribute])
     else:
-        print("Student not found.")
-    input("Enter anything to continue.")
+        key = "ID" if input("Search by ID or Name?: ").lower() == "id" else "Last Name"
+        term = input("Enter search term: ")
+        students.sort(key=lambda x: x[key])
+        index = binary_search(students, term, key)
+        print((students[index] if attribute not in ["ID", "First Name", "Last Name", "Grade", "Class", "Email"].upper() else students[index][attribute]) if index != -1 else "Student not found.")
+        input("Enter anything to continue.")
 
-def update_student(filename):
+def update_student(filename): #both
     """Update an existing student record."""
     data = load_data(filename)
     student_id = input("Enter student ID to update: ")
@@ -58,18 +66,19 @@ def update_student(filename):
         print("Student not found.")
         return
     
-    print("Available fields to update: ID, First Name, Last Name, Grade, Class, Email")
+    print("Available fields to update: First Name, Last Name, Grade, Class, Email")
     field = input("Enter the name of the feature to update: ")
-    if field not in student:
+    if field == "ID" or field not in student:
         print("Invalid feature.")
         return
     new_value = input(f"The {field} feature is currently {student[field]}, what do you want to update it to? ")
     student[field] = new_value
     save_data(filename, data)
     print("Student updated successfully.")
+    print(student)
     input("Enter anything to continue.")
 
-def delete_student(filename):
+def delete_student(filename): #Eric
     """Delete a student record with confirmation."""
     data = load_data(filename)
     student_id = input("Enter student ID to delete: ")
@@ -90,7 +99,7 @@ def delete_student(filename):
     print("Student deleted successfully.")
     input("Enter anything to continue.")
 
-def binary_search(data, target, key):
+def binary_search(data, target, key): #Eric
     """Binary search to find a student by ID or name."""
     left, right = 0, len(data) - 1
     while left <= right:
@@ -103,7 +112,7 @@ def binary_search(data, target, key):
             right = mid - 1
     return -1
 
-def mergesort(data, key):
+def mergesort(data, key): #Eric
     """MergeSort algorithm to sort student data."""
     if len(data) <= 1:
         return data
@@ -112,17 +121,25 @@ def mergesort(data, key):
     right = mergesort(data[mid:], key)
     return merge(left, right, key)
 
-def merge(left, right, key):
+def merge(left, right, key): #both
     """Helper function for MergeSort."""
     sorted_list = []
     while left and right:
-        if left[0][key] < right[0][key]:
+        try:
+            float(left[0][key])
+            float(right[0][key])
+            l = float(left[0][key])
+            r = float(right[0][key])
+        except:
+            l = left[0][key]
+            r = right[0][key]
+        if l < r:
             sorted_list.append(left.pop(0))
         else:
             sorted_list.append(right.pop(0))
     return sorted_list + left + right
 
-def sort_students(filename):
+def sort_students(filename): #both
     """Sort students by a specified attribute."""
     data = load_data(filename)
     attribute = input("Specify which attribute to sort on (Last Name, Class, ID): ")
@@ -134,7 +151,7 @@ def sort_students(filename):
     print("Students sorted successfully.")
     input("Enter anything to continue.")
 
-def main():
+def main(): #both
     filename = "students.csv"
     while True:
         print("""
@@ -143,7 +160,6 @@ def main():
 ----------------------------------------
 [C] Create a new student
 [R] Read student details
-[S] Search student by ID
 [T] Sort students by attribute
 [U] Update student information
 [D] Delete a student record
@@ -158,13 +174,6 @@ def main():
             update_student(filename)
         elif command in ["d"]:
             delete_student(filename)
-        elif command in ["s"]:
-            key = "ID" if input("Search by ID or Name?: ").lower() == "id" else "Last Name"
-            term = input("Enter search term: ")
-            students = load_data(filename)
-            students.sort(key=lambda x: x[key])
-            index = binary_search(students, term, key)
-            print(students[index] if index != -1 else "Student not found.")
         elif command in ["t"]:
             sort_students(filename)
         elif command in ["e"]:
